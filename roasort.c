@@ -72,14 +72,14 @@ main(int argc, char *argv[])
 	ssize_t linelen;
 	long lval;
 	struct addrinfo hint, *res = NULL;
-	struct roa_elem *elem;
+	struct roa_elem *elem, *elemtmp;
 	int rc = 0;
 
-	/*
-	 * input: 2001:67c:208c::/48-48 2001:67c:208c::/48 10.0.0.0/24 10.0.0.0/8
-	 */
 	while ((linelen = getline(&line, &linesize, stdin)) != -1) {
 		address = line;
+
+		if (line[linelen - 1] == '\n')
+			line[linelen - 1] = '\0';
 
 		if ((elem = malloc(sizeof(struct roa_elem))) == NULL)
 			err(1, NULL);
@@ -91,7 +91,7 @@ main(int argc, char *argv[])
 		errno = 0;
 		lval = atoi(plen);
 		if (errno == ERANGE && (lval == LONG_MAX || lval == LONG_MIN))
-			errx(1, "malformed prefixlength: %s", line);
+			errx(1, "malformed prefix length: %s", line);
 		elem->prefixlength = lval;
 
 		mlen = plen;
@@ -112,12 +112,23 @@ main(int argc, char *argv[])
 		hint.ai_flags = AI_NUMERICHOST;
 
 		if (getaddrinfo(address, NULL, &hint, &res))
-			errx(1, "malformed IP: %s", address);
+			errx(1, "malformed IP address: %s", address);
 
 		elem->afi = res->ai_family;
+
 		freeaddrinfo(res);
+
 		if (inet_pton(elem->afi, address, elem->addr) != 1)
 			err(1, "inet_pton");
+
+		if (elem->prefixlength > ((elem->afi == AF_INET) ? 32 : 128))
+			errx(1, "prefix length too large");
+
+		if (elem->prefixlength > elem->maxlength)
+			errx(1, "invalid prefix length / maxlength");
+
+		if (elem->maxlength > ((elem->afi == AF_INET) ? 32 : 128))
+			errx(1, "maxlength too large");
 
 		RB_INSERT(tree, &head, elem);
 	}
@@ -126,7 +137,7 @@ main(int argc, char *argv[])
 	if (ferror(stdin))
 		errx(1, "getline");
 
-	RB_FOREACH(elem, tree, &head) {
+	RB_FOREACH_SAFE(elem, tree, &head, elemtmp) {
 		char buf[64];
 
 		if (inet_ntop(elem->afi, elem->addr, buf, sizeof(buf)) == NULL)
@@ -137,6 +148,8 @@ main(int argc, char *argv[])
 			printf("\n");
 		else
 			printf("-%i\n", elem->maxlength);
+		RB_REMOVE(tree, &head, elem);
+		free(elem);
 	}
 
 	return rc;
