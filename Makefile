@@ -1,5 +1,5 @@
 all:
-	cc -O2 -pipe -Wall -Wmissing-prototypes -Wmissing-declarations -Wshadow -Wpointer-arith -Wsign-compare -Werror-implicit-function-declaration -MD -MP -o roasort roasort.c -lc
+	cc -std=c99 -O2 -pipe -Wall -Wmissing-prototypes -Wmissing-declarations -Wshadow -Wpointer-arith -Wsign-compare -Werror-implicit-function-declaration -MD -MP -o roasort roasort.c -lc
 	mandoc -Tlint roasort.8
 
 install:
