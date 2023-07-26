@@ -106,6 +106,8 @@ main(int argc, char *argv[])
 			    || lval == LONG_MIN))
 				errx(1, "malformed maxlength: %s", line);
 			elem->maxlength = lval;
+			if (elem->prefixlength == elem->maxlength)
+				rc = 1;
 		}
 
 		memset(&hint, 0, sizeof(struct addrinfo));
