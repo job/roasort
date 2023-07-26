@@ -130,7 +130,8 @@ main(int argc, char *argv[])
 		if (elem->maxlength > ((elem->afi == AF_INET) ? 32 : 128))
 			errx(1, "maxlength too large");
 
-		RB_INSERT(tree, &head, elem);
+		if (RB_INSERT(tree, &head, elem) != NULL)
+			rc = 1;
 	}
 
 	free(line);
@@ -153,7 +154,7 @@ main(int argc, char *argv[])
 	}
 
 	/*
-	 * XXX: return non-zero exit code if stdin != stdout.
+	 * XXX: also return non-zero exit code if stdin != stdout.
 	  */
 	return rc;
 }
