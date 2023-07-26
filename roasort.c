@@ -15,14 +15,14 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#include <sys/tree.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/tree.h>
 
 #include <err.h>
 #include <errno.h>
-#include <netdb.h>
 #include <limits.h>
+#include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -152,5 +152,8 @@ main(int argc, char *argv[])
 		free(elem);
 	}
 
+	/*
+	 * XXX: return non-zero exit code if stdin != stdout.
+	  */
 	return rc;
 }
