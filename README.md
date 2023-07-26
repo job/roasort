@@ -16,7 +16,10 @@ described in
 
 # EXIT STATUS
 
-The **roasort** utility exits&#160;0 on success, and&#160;&gt;0 if an error occurs.
+The
+**roasort**
+utility exits&#160;0 on success, and&#160;&gt;0 if an error occurs,
+such as the input containing duplicates or being unsorted.
 
 # EXAMPLES
 

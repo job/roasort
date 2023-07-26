@@ -31,7 +31,8 @@ struct roa_elem {
         int afi;
 	unsigned char addr[16];
 	int prefixlength;
-        int maxlength;
+	int maxlength;
+	int i;
 	RB_ENTRY(roa_elem) entry;
 };
 
@@ -73,7 +74,7 @@ main(int argc, char *argv[])
 	long lval;
 	struct addrinfo hint, *res = NULL;
 	struct roa_elem *elem, *elemtmp;
-	int rc = 0;
+	int i = 0, rc = 0;
 
 	while ((linelen = getline(&line, &linesize, stdin)) != -1) {
 		address = line;
@@ -130,16 +131,22 @@ main(int argc, char *argv[])
 		if (elem->maxlength > ((elem->afi == AF_INET) ? 32 : 128))
 			errx(1, "maxlength too large");
 
+		elem->i = i++;
+
 		if (RB_INSERT(tree, &head, elem) != NULL)
 			rc = 1;
 	}
 
 	free(line);
 	if (ferror(stdin))
-		errx(1, "getline");
+		err(1, "getline");
 
+	i = 0;
 	RB_FOREACH_SAFE(elem, tree, &head, elemtmp) {
 		char buf[64];
+
+		if (elem->i != i++)
+			rc = 1;
 
 		if (inet_ntop(elem->afi, elem->addr, buf, sizeof(buf)) == NULL)
 			err(1, "inet_ntop");
@@ -153,8 +160,5 @@ main(int argc, char *argv[])
 		free(elem);
 	}
 
-	/*
-	 * XXX: also return non-zero exit code if stdin != stdout.
-	  */
 	return rc;
 }
