@@ -23,7 +23,7 @@ such as the input containing duplicates or being unsorted.
 
 # EXAMPLES
 
-	cat << EOF | ./roasort
+	$ cat << EOF | ./roasort
 	10.0.0.0/24
 	10.0.0.0/24-24
 	10.0.0.0/8
@@ -34,6 +34,14 @@ such as the input containing duplicates or being unsorted.
 	10.0.0.0/24
 	2001:db8::/32
 	2001:db8:db8::/48
+	$ echo $?
+	1
+	
+	$ echo "2001:db8::/32\n2001:db8::/48" | ./roasort
+	2001:db8::/32
+	2001:db8::/48
+	$ echo $?
+	0
 
 # STANDARDS
 
@@ -44,4 +52,4 @@ such as the input containing duplicates or being unsorted.
 
 Job Snijders &lt;[job@fastly.com](mailto:job@fastly.com)&gt;
 
-OpenBSD 7.3 - July 26, 2023
+OpenBSD 7.3 - July 27, 2023

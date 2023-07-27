@@ -34,7 +34,7 @@ utility exits 0 on success, and >0 if an error occurs,
 such as the input containing duplicates or being unsorted.
 .Sh EXAMPLES
 .Bd -literal -offset indent
-cat << EOF | ./roasort
+$ cat << EOF | ./roasort
 10.0.0.0/24
 10.0.0.0/24-24
 10.0.0.0/8
@@ -45,6 +45,14 @@ EOF
 10.0.0.0/24
 2001:db8::/32
 2001:db8:db8::/48
+$ echo $?
+1
+
+$ echo "2001:db8::/32\\n2001:db8::/48" | ./roasort
+2001:db8::/32
+2001:db8::/48
+$ echo $?
+0
 .Ed
 .Sh STANDARDS
 .Rs
