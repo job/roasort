@@ -8,10 +8,17 @@ ROASORT(8) - System Manager's Manual
 
 The
 **roasort**
-utility reads a list of ROA IP address information elements from
-*stdin*,
-sorts and deduplicates the elements according to the canonicalization process
-described in
+utility reads a list of newline separated ROA IP address information
+elements from
+*stdin*.
+Information elements are in the form: &lt;address/prefixlength&gt;\[-maxlength].
+
+The utility can be used in two ways: the error exit code indicates
+whether the input was in canonical form or not, and the canonical form
+is written to the standard output.
+
+The utility sorts and deduplicates the elements according to the
+canonicalization process described in
 *draft-ietf-sidrops-rfc6482bis*.
 
 # EXIT STATUS
@@ -37,8 +44,8 @@ such as the input containing duplicates or being unsorted.
 	$ echo $?
 	1
 	
-	$ echo "2001:db8::/32\n2001:db8::/48" | ./roasort
-	2001:db8::/32
+	$ echo "2001:db8::/32-33\n2001:db8::/48" | ./roasort
+	2001:db8::/32-33
 	2001:db8::/48
 	$ echo $?
 	0

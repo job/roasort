@@ -22,10 +22,17 @@
 .Sh DESCRIPTION
 The
 .Nm
-utility reads a list of ROA IP address information elements from
-.Em stdin ,
-sorts and deduplicates the elements according to the canonicalization process
-described in
+utility reads a list of newline separated ROA IP address information
+elements from
+.Em stdin .
+Information elements are in the form: <address/prefixlength>[-maxlength].
+.Pp
+The utility can be used in two ways: the error exit code indicates
+whether the input was in canonical form or not, and the canonical form
+is written to the standard output.
+.Pp
+The utility sorts and deduplicates the elements according to the
+canonicalization process described in
 .Em draft-ietf-sidrops-rfc6482bis .
 .Sh EXIT STATUS
 The
@@ -48,8 +55,8 @@ EOF
 $ echo $?
 1
 
-$ echo "2001:db8::/32\\n2001:db8::/48" | ./roasort
-2001:db8::/32
+$ echo "2001:db8::/32-33\\n2001:db8::/48" | ./roasort
+2001:db8::/32-33
 2001:db8::/48
 $ echo $?
 0
