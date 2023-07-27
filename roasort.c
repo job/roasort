@@ -68,7 +68,7 @@ RB_GENERATE(tree, roa_elem, entry, roa_elem_cmp)
 int
 main(int argc, char *argv[])
 {
-	char *line = NULL, *address, *plen, *mlen;
+	char *line = NULL, *oline, *address, *plen, *mlen;
 	size_t linesize = 0;
 	ssize_t linelen;
 	long lval;
@@ -82,17 +82,20 @@ main(int argc, char *argv[])
 		if (line[linelen - 1] == '\n')
 			line[linelen - 1] = '\0';
 
+		if ((oline = strdup(line)) == NULL)
+			err(1, NULL);
+
 		if ((elem = malloc(sizeof(struct roa_elem))) == NULL)
 			err(1, NULL);
 
 		plen = line;
 		line = strsep(&plen, "/");
 		if (plen == NULL)
-			errx(1, "malformed prefix: %s", line);
+			errx(1, "malformed prefix: %s", oline);
 		errno = 0;
 		lval = atoi(plen);
 		if (errno == ERANGE && (lval == LONG_MAX || lval == LONG_MIN))
-			errx(1, "malformed prefix length: %s", line);
+			err(1, "invalid prefix length: %s", oline);
 		elem->prefixlength = lval;
 
 		mlen = plen;
@@ -104,7 +107,7 @@ main(int argc, char *argv[])
 			lval = atoi(mlen);
 			if (errno == ERANGE && (lval == LONG_MAX
 			    || lval == LONG_MIN))
-				errx(1, "malformed maxlength: %s", line);
+				errx(1, "invalid maxlength: %s", oline);
 			elem->maxlength = lval;
 			if (elem->prefixlength == elem->maxlength)
 				rc = 1;
@@ -115,7 +118,7 @@ main(int argc, char *argv[])
 		hint.ai_flags = AI_NUMERICHOST;
 
 		if (getaddrinfo(address, NULL, &hint, &res))
-			errx(1, "malformed IP address: %s", address);
+			errx(1, "invalid IP address: %s", oline);
 
 		elem->afi = res->ai_family;
 
@@ -125,13 +128,15 @@ main(int argc, char *argv[])
 			err(1, "inet_pton");
 
 		if (elem->prefixlength > ((elem->afi == AF_INET) ? 32 : 128))
-			errx(1, "prefix length too large");
+			errx(1, "invalid prefix length, too large: %s", oline);
 
 		if (elem->prefixlength > elem->maxlength)
-			errx(1, "invalid prefix length / maxlength");
+			errx(1, "invalid prefix length / maxlength: %s", oline);
 
 		if (elem->maxlength > ((elem->afi == AF_INET) ? 32 : 128))
-			errx(1, "maxlength too large");
+			errx(1, "invalid maxlength, too large: %s", oline);
+
+		free(oline);
 
 		elem->i = i++;
 
